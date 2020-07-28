@@ -35,13 +35,15 @@ namespace WebApplication10.Services.Implementation
         private async Task<decimal> FetchSerializedDataAsync(string code)
         {
             var url = $"{BASE_URI}/api/{API_VERSION}/convert?q={code}&compact=ultra&apiKey={API_Key}";
-            var webClient = new WebClient();
             var jsonData = String.Empty;
 
             var conversionRate = 1.0m;
-            try
-            {
-                jsonData = webClient.DownloadString(url);
+
+            using(var webClient = new WebClient())
+	        {
+                 try
+                {
+                 jsonData = webClient.DownloadString(url);
                 var jsonObject = JsonConvert.DeserializeObject<Dictionary<string, decimal>>(jsonData); 
 
                 using (var scope = _serviceScopeFactory.CreateScope())
@@ -61,11 +63,13 @@ namespace WebApplication10.Services.Implementation
                         await dbContext.SaveChangesAsync();
                     }
                 }
-            }
-            catch (Exception ex)
-            {
+                }
+                    catch (Exception ex)
+                  {
                 //Logging error
-            }
+                  }
+	        }
+           
 
             return conversionRate;
         }
